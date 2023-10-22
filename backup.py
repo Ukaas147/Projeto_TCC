@@ -16,29 +16,42 @@ class Window(QMainWindow):
         caminho_pasta_imagens = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'View', 'Imagens')
         self.setWindowTitle("Tela Digitalizadora")
         self.setFixedSize(1200, 660)
+        self.setStyleSheet(u"background-color:#ffffdf")
         self.setWindowIcon(QIcon(os.path.join(caminho_pasta_imagens, 'icone.png')))
-        
-        self.image = QImage(self.size(), QImage.Format_RGB32)
-        self.image.fill(QColor("#ffffdf"))
         
 #CRIAÇÃO DA TELA
         self.tela_digitalizada = QTextBrowser(self)
         self.tela_digitalizada.setObjectName(u"tela_digitalizada")
-        self.tela_digitalizada.setGeometry(QRect(100, 31, 1090, 230))
+        self.tela_digitalizada.setGeometry(QRect(100, 21, 1070, 330))
         self.tela_digitalizada.setAutoFillBackground(False)
-        self.tela_digitalizada.setStyleSheet(u"background-color:#ffffff; border: 1px solid black")
+        self.tela_digitalizada.setStyleSheet(u"background-color:#ffffff")
+
+        self.lado_esquerdo_amarelo = QLabel(self)
+        self.lado_esquerdo_amarelo.setObjectName(u"lado_esquerdo_amarelo")
+        self.lado_esquerdo_amarelo.setGeometry(QRect(0, 21, 100, 639))
+        self.lado_esquerdo_amarelo.setAutoFillBackground(False)
+        self.lado_esquerdo_amarelo.setStyleSheet(u"background-color:#ffffdf")
+        
+        self.lado_direito_amarelo = QLabel(self)
+        self.lado_direito_amarelo.setObjectName(u"lado_direito_amarelo")
+        self.lado_direito_amarelo.setGeometry(QRect(1170, 21, 30, 639))
+        self.lado_direito_amarelo.setAutoFillBackground(False)
+        self.lado_direito_amarelo.setStyleSheet(u"background-color:#ffffdf")
 
         self.margem_cinza_esquerda = QLabel(self)
         self.margem_cinza_esquerda.setObjectName(u"margem_cinza_esquerda")
-        self.margem_cinza_esquerda.setGeometry(QRect(100, 271, 346, 379))
+        self.margem_cinza_esquerda.setGeometry(QRect(70, 310, 240, 290))
         self.margem_cinza_esquerda.setAutoFillBackground(False)
-        self.margem_cinza_esquerda.setStyleSheet(u"background-color:#ebebeb; border: 1px solid black")
+        self.margem_cinza_esquerda.setStyleSheet(u"background-color:#ebebeb")
 
         self.margem_cinza_direita = QLabel(self)
         self.margem_cinza_direita.setObjectName(u"margem_cinza_direita")
-        self.margem_cinza_direita.setGeometry(QRect(845, 271, 345, 379))
+        self.margem_cinza_direita.setGeometry(QRect(605, 310, 260, 290))
         self.margem_cinza_direita.setAutoFillBackground(False)
-        self.margem_cinza_direita.setStyleSheet(u"background-color:#ebebeb; border: 1px solid black")
+        self.margem_cinza_direita.setStyleSheet(u"background-color:#ebebeb")
+        
+        self.image = QImage(self.size(), QImage.Format_RGB32)
+        self.image.fill(Qt.white)
 
 #BOTOES
         self.botao_salvar = QPushButton(self)
@@ -162,7 +175,7 @@ class Window(QMainWindow):
         screenshot = screen.grabWindow(self.winId())
         screenshot.save(caminho_screenshot, 'png')
         imagem = cv2.imread(caminho_screenshot)
-        imagem_cortada = imagem[271:650,446:845]
+        imagem_cortada = imagem[311:600, 310:602]
         cv2.imwrite(caminho_screenshot, imagem_cortada)
         self.pixmap = QPixmap(caminho_screenshot)
         self.retornaTextoImagem()

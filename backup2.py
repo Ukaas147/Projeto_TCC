@@ -18,6 +18,7 @@ class Window(QMainWindow):
         self.setFixedSize(1200, 660)
         self.setWindowIcon(QIcon(os.path.join(caminho_pasta_imagens, 'icone.png')))
         
+        
         self.image = QImage(self.size(), QImage.Format_RGB32)
         self.image.fill(QColor("#ffffdf"))
         
