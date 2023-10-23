@@ -18,28 +18,53 @@ class Window(QMainWindow):
         self.setFixedSize(1200, 660)
         self.setWindowIcon(QIcon(os.path.join(caminho_pasta_imagens, 'icone.png')))
         
-        
         self.image = QImage(self.size(), QImage.Format_RGB32)
-        self.image.fill(QColor("#ffffdf"))
+        self.image.fill(QColor("#ffffff"))
         
 #CRIAÇÃO DA TELA
+
+        self.margem_amarelo_esquerdo = QLabel(self)
+        self.margem_amarelo_esquerdo.setObjectName(u"argem_amarelo_esquerdo")
+        self.margem_amarelo_esquerdo.setGeometry(QRect(0, 0, 101, 660))
+        self.margem_amarelo_esquerdo.setStyleSheet(u"background-color:#ffffdf; border-right: 1px solid gray")
+        
+        self.margem_amarelo_direito = QLabel(self)
+        self.margem_amarelo_direito.setObjectName(u"argem_amarelo_direito")
+        self.margem_amarelo_direito.setGeometry(QRect(1189, 0, 11, 660))
+        self.margem_amarelo_direito.setStyleSheet(u"background-color:#ffffdf; border-left: 1px solid gray")
+        
+        self.margem_amarelo_topo = QLabel(self)
+        self.margem_amarelo_topo.setObjectName(u"argem_amarelo_topo")
+        self.margem_amarelo_topo.setGeometry(QRect(100, 21, 1090, 11))
+        self.margem_amarelo_topo.setStyleSheet(u"background-color:#ffffdf; border-bottom: 1px solid gray")
+        
+        self.margem_amarelo_meio = QLabel(self)
+        self.margem_amarelo_meio.setObjectName(u"argem_amarelo_meio")
+        self.margem_amarelo_meio.setGeometry(QRect(100, 261, 1090, 11))
+        self.margem_amarelo_meio.setStyleSheet(u"background-color:#ffffdf; border-bottom: 1px solid gray")
+        
+        self.margem_amarelo_baixo = QLabel(self)
+        self.margem_amarelo_baixo.setObjectName(u"argem_amarelo_")
+        self.margem_amarelo_baixo.setGeometry(QRect(100, 649, 1090, 11))
+        self.margem_amarelo_baixo.setStyleSheet(u"background-color:#ffffdf; border-top: 1px solid gray")
+
         self.tela_digitalizada = QTextBrowser(self)
         self.tela_digitalizada.setObjectName(u"tela_digitalizada")
         self.tela_digitalizada.setGeometry(QRect(100, 31, 1090, 230))
         self.tela_digitalizada.setAutoFillBackground(False)
-        self.tela_digitalizada.setStyleSheet(u"background-color:#ffffff; border: 1px solid black")
-
+        self.tela_digitalizada.setStyleSheet(u"background-color:#ffffff; border: 1px solid gray")
+        
         self.margem_cinza_esquerda = QLabel(self)
         self.margem_cinza_esquerda.setObjectName(u"margem_cinza_esquerda")
-        self.margem_cinza_esquerda.setGeometry(QRect(100, 271, 346, 379))
+        self.margem_cinza_esquerda.setGeometry(QRect(101, 272, 349, 377))
         self.margem_cinza_esquerda.setAutoFillBackground(False)
-        self.margem_cinza_esquerda.setStyleSheet(u"background-color:#ebebeb; border: 1px solid black")
-
+        self.margem_cinza_esquerda.setStyleSheet(u"background-color:#ebebeb")
+        
         self.margem_cinza_direita = QLabel(self)
         self.margem_cinza_direita.setObjectName(u"margem_cinza_direita")
-        self.margem_cinza_direita.setGeometry(QRect(845, 271, 345, 379))
+        self.margem_cinza_direita.setGeometry(QRect(840, 272, 349, 377))
         self.margem_cinza_direita.setAutoFillBackground(False)
-        self.margem_cinza_direita.setStyleSheet(u"background-color:#ebebeb; border: 1px solid black")
+        self.margem_cinza_direita.setStyleSheet(u"background-color:#ebebeb")
 
 #BOTOES
         self.botao_salvar = QPushButton(self)
@@ -48,6 +73,24 @@ class Window(QMainWindow):
         self.botao_salvar.setIcon(QIcon(os.path.join(caminho_pasta_imagens, 'filesave.png')))
         self.botao_salvar.setIconSize(QSize(30, 30))
         self.botao_salvar.setStyleSheet(u"background-color:#ffffff")
+        
+        self.botao_abrir_documento = QPushButton(self)
+        self.botao_abrir_documento.setGeometry(55, 30, 35, 35)
+        self.botao_abrir_documento.clicked.connect(self.atualizar_lista_pop)
+        self.botao_abrir_documento.setIcon(QIcon(os.path.join(caminho_pasta_imagens, '')))
+        self.botao_abrir_documento.setStyleSheet(u"background-color:#ffffff")
+        
+        self.botao_alterar_fonte_texto = QPushButton(self)
+        self.botao_alterar_fonte_texto.setGeometry(55, 75, 35, 35)
+        self.botao_alterar_fonte_texto.setStyleSheet(u"background-color:#ffffff")
+        
+        self.botao_alterar_cor_texto = QPushButton(self)
+        self.botao_alterar_cor_texto.setGeometry(55, 120, 35, 35)
+        self.botao_alterar_cor_texto.setStyleSheet(u"background-color:#ffffff")
+        
+        self.botao_alterar_tamanho_texto = QPushButton(self)
+        self.botao_alterar_tamanho_texto.setGeometry(55, 165, 35, 35)
+        self.botao_alterar_tamanho_texto.setStyleSheet(u"background-color:#ffffff")
         
         self.botao_digitalizar = QPushButton(self)
         self.botao_digitalizar.setGeometry(10, 75, 35, 35)
@@ -152,23 +195,8 @@ class Window(QMainWindow):
                           "PNG(*.png);;JPEG(*.jpg *.jpeg);;All Files(*.*) ")
  
         if filePath == "":
-            return
-        self.image.save(filePath)
-
-    def digitalizar(self):
-        caminho_pasta_imagens = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'View', 'Imagens')
-        caminho_screenshot = os.path.join(caminho_pasta_imagens, 'screenshot.png')
-
-        screen = QApplication.primaryScreen()
-        screenshot = screen.grabWindow(self.winId())
-        screenshot.save(caminho_screenshot, 'png')
-        imagem = cv2.imread(caminho_screenshot)
-        imagem_cortada = imagem[271:650,446:845]
-        cv2.imwrite(caminho_screenshot, imagem_cortada)
-        self.pixmap = QPixmap(caminho_screenshot)
-        self.retornaTextoImagem()
-
-        
+            return self.image.save(filePath)
+           
     def clear(self):
         self.image.fill(Qt.white)
         self.update()
@@ -192,21 +220,46 @@ class Window(QMainWindow):
         if result == QDialog.Accepted:
             self.brush_size = brush_size_dialog.get_selected_thickness()
 
-    def retornaTextoImagem(self):
+    def digitalizar(self):
         caminho_pasta_imagens = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'View', 'Imagens')
         caminho_screenshot = os.path.join(caminho_pasta_imagens, 'screenshot.png')
 
+        screen = QApplication.primaryScreen()
+        screenshot = screen.grabWindow(self.winId())
+        screenshot.save(caminho_screenshot, 'png')
+        
+        imagem = cv2.imread(caminho_screenshot)
+        cortar_screenshot = imagem[272:649,450:840]
+        cv2.imwrite(caminho_screenshot, cortar_screenshot)
+        self.pixmap = QPixmap(caminho_screenshot)
+        self.retorna_texto_imagem()
+
+    def retorna_texto_imagem(self):
+        caminho_pasta_imagens = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'View', 'Imagens')
+        caminho_screenshot = os.path.join(caminho_pasta_imagens, 'screenshot.png')
         retornaClasse = RetornaClasse()
         letraDigitalizada = retornaClasse.prever_letra(caminho_screenshot)
+        self.atualizar_lista_append(letraDigitalizada)
+    
+    def atualizar_lista_append(self, letraDigitalizada):
         self.minha_lista.append(letraDigitalizada)
-        valores_sem_colchetes = ''.join(str(valor) for valor in self.minha_lista if valor is not None and valor != 'e')
-
+        self.atualizar_info_tela_digitalizada()
+        
+    def atualizar_lista_pop(self):
+        try:
+            self.minha_lista.pop()
+            self.atualizar_info_tela_digitalizada()
+        except IndexError:
+            print("A lista está vazia.")
+        
+    def atualizar_info_tela_digitalizada(self):
+        minha_lista_sem_colchetes = ''.join(str(valor) for valor in self.minha_lista if valor is not None and valor != 'e')
         self.tela_digitalizada.setHtml(
             u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
             "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
             "p, li { white-space: pre-wrap; }\n"
             "</style></head><body style=\" font-family:'SimSun'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-            f"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:65pt; font-family: Calibri\">{valores_sem_colchetes}</span></p></body></html>")
+            f"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:65pt; font-family: Calibri\">{minha_lista_sem_colchetes}</span></p></body></html>")
 
     def mostrar_letra_pontilhada_dialog(self, letter):
         letra_pontilhada_dialog = LetraPontilhadaDialog()
