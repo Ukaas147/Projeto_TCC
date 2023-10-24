@@ -7,6 +7,31 @@ from RedeNeural.RetornaClasse import RetornaClasse
 from brush_thickness_dialog import BrushThicknessDialog
 from letra_pontilhada_dialog import LetraPontilhadaDialog
 
+class DrawingLabel(QLabel):
+    def __init__(self):
+        super().__init__()
+
+        self.setFixedSize(400, 200)  # Tamanho da área de desenho
+        self.image = QImage(self.size(), QImage.Format_RGB32)
+        self.image.fill(Qt.white)
+        self.last_point = QPoint()
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.drawImage(0, 0, self.image)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.last_point = event.pos()
+
+    def mouseMoveEvent(self, event):
+        if event.buttons() & Qt.LeftButton:
+            painter = QPainter(self.image)
+            painter.setPen(QPen(QColor(0, 0, 0), 2, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+            painter.drawLine(self.last_point, event.pos())
+            self.last_point = event.pos()
+            self.update()
+
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -25,32 +50,6 @@ class Window(QMainWindow):
         self.image_label.setGeometry(463, 272, 349, 377)
         
 #CRIAÇÃO DA TELA
-
-        self.margem_amarelo_esquerdo = QLabel(self)
-        self.margem_amarelo_esquerdo.setObjectName(u"argem_amarelo_esquerdo")
-        self.margem_amarelo_esquerdo.setGeometry(QRect(0, 0, 101, 660))
-        self.margem_amarelo_esquerdo.setStyleSheet(u"background-color:#ffffdf; border-right: 1px solid gray")
-        
-        self.margem_amarelo_direito = QLabel(self)
-        self.margem_amarelo_direito.setObjectName(u"argem_amarelo_direito")
-        self.margem_amarelo_direito.setGeometry(QRect(1189, 0, 11, 660))
-        self.margem_amarelo_direito.setStyleSheet(u"background-color:#ffffdf; border-left: 1px solid gray")
-        
-        self.margem_amarelo_topo = QLabel(self)
-        self.margem_amarelo_topo.setObjectName(u"argem_amarelo_topo")
-        self.margem_amarelo_topo.setGeometry(QRect(100, 21, 1090, 11))
-        self.margem_amarelo_topo.setStyleSheet(u"background-color:#ffffdf; border-bottom: 1px solid gray")
-        
-        self.margem_amarelo_meio = QLabel(self)
-        self.margem_amarelo_meio.setObjectName(u"argem_amarelo_meio")
-        self.margem_amarelo_meio.setGeometry(QRect(100, 261, 1090, 11))
-        self.margem_amarelo_meio.setStyleSheet(u"background-color:#ffffdf; border-bottom: 1px solid gray")
-        
-        self.margem_amarelo_baixo = QLabel(self)
-        self.margem_amarelo_baixo.setObjectName(u"argem_amarelo_")
-        self.margem_amarelo_baixo.setGeometry(QRect(100, 649, 1090, 11))
-        self.margem_amarelo_baixo.setStyleSheet(u"background-color:#ffffdf; border-top: 1px solid gray")
-
         self.tela_digitalizada = QTextBrowser(self)
         self.tela_digitalizada.setObjectName(u"tela_digitalizada")
         self.tela_digitalizada.setGeometry(QRect(100, 31, 1090, 230))
