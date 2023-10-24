@@ -15,6 +15,10 @@ class DrawingLabel(QLabel):
         self.image = QImage(self.size(), QImage.Format_RGB32)
         self.image.fill(Qt.white)
         self.last_point = QPoint()
+        
+        self.mouse_release_timer = QTimer(self)
+        self.mouse_release_timer.setSingleShot(True)
+        self.mouse_release_timer.timeout.connect(self.after_mouse_release)
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -31,6 +35,15 @@ class DrawingLabel(QLabel):
             painter.drawLine(self.last_point, event.pos())
             self.last_point = event.pos()
             self.update()
+            
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.drawing = False
+            self.mouse_release_timer.start(2500)
+
+    @pyqtSlot()
+    def after_mouse_release(self):
+        self.digitalizar()
 
 class Window(QMainWindow):
     def __init__(self):
@@ -41,13 +54,8 @@ class Window(QMainWindow):
         caminho_pasta_imagens = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'View', 'Imagens')
         self.setWindowTitle("Tela Digitalizadora")
         self.setFixedSize(1200, 660)
+        self.setStyleSheet(u"background-color:#ffffdf")
         self.setWindowIcon(QIcon(os.path.join(caminho_pasta_imagens, 'icone.png')))
-        
-        self.image = QImage(self.size(), QImage.Format_RGB32)
-        self.image.fill(QColor("#ffffff"))
-        
-        self.image_label = QLabel(self)
-        self.image_label.setGeometry(463, 272, 349, 377)
         
 #CRIAÇÃO DA TELA
         self.tela_digitalizada = QTextBrowser(self)
@@ -163,36 +171,19 @@ class Window(QMainWindow):
         limpar_tela_qaction.setShortcut("Ctrl+C")
         file_menu.addAction(limpar_tela_qaction)
         limpar_tela_qaction.triggered.connect(self.limpar_tela)
+        
+    def initUI(self):
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
 
-        self.mouse_release_timer = QTimer(self)
-        self.mouse_release_timer.setSingleShot(True)
-        self.mouse_release_timer.timeout.connect(self.after_mouse_release)
+        layout = QVBoxLayout()
+        drawing_label = DrawingLabel()
+        layout.addWidget(drawing_label)
+        central_widget.setLayout(layout)
 
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            self.drawing = True
-            self.lastPoint = event.pos()
-
-    def mouseMoveEvent(self, event):
-        if (event.buttons() & Qt.LeftButton) & self.drawing:
-            painter = QPainter(self.image)
-            painter.setPen(QPen(self.brush_color, self.brush_size, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
-            painter.drawLine(self.lastPoint, event.pos())
-            self.lastPoint = event.pos()
-            self.update()
-
-    def mouseReleaseEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            self.drawing = False
-            self.mouse_release_timer.start(2500)
-
-    @pyqtSlot()
-    def after_mouse_release(self):
-        self.digitalizar()
-
-    def paintEvent(self, event):
-        canvasPainter = QPainter(self)
-        canvasPainter.drawImage(self.rect(), self.image, self.image.rect())
+        self.setGeometry(100, 100, 200, 400)
+        self.setWindowTitle('Área de Desenho')
+        self.show()
 
     def salvar(self):
         filePath, _ = QFileDialog.getSaveFileName(self, "Save Image", "",
