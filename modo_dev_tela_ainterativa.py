@@ -11,7 +11,7 @@ class Window(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.minha_lista = []
+        self.lista_letras_digitalizadas = []
 
         caminho_pasta_imagens = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'View', 'Imagens')
         self.setWindowTitle("Tela Digitalizadora")
@@ -20,6 +20,9 @@ class Window(QMainWindow):
         
         self.image = QImage(self.size(), QImage.Format_RGB32)
         self.image.fill(QColor("#ffffff"))
+        
+        self.image_label = QLabel(self)
+        self.image_label.setGeometry(463, 272, 349, 377)
         
 #CRIAÇÃO DA TELA
 
@@ -69,19 +72,21 @@ class Window(QMainWindow):
 #BOTOES
         self.botao_salvar = QPushButton(self)
         self.botao_salvar.setGeometry(10, 30, 35, 35)
-        self.botao_salvar.clicked.connect(self.save)
+        self.botao_salvar.clicked.connect(self.salvar)
         self.botao_salvar.setIcon(QIcon(os.path.join(caminho_pasta_imagens, 'filesave.png')))
         self.botao_salvar.setIconSize(QSize(30, 30))
         self.botao_salvar.setStyleSheet(u"background-color:#ffffff")
         
         self.botao_abrir_documento = QPushButton(self)
         self.botao_abrir_documento.setGeometry(55, 30, 35, 35)
-        self.botao_abrir_documento.clicked.connect(self.atualizar_lista_pop)
+        self.botao_abrir_documento.clicked.connect(self.pop_lista_letras_digitalizadas)
         self.botao_abrir_documento.setIcon(QIcon(os.path.join(caminho_pasta_imagens, '')))
         self.botao_abrir_documento.setStyleSheet(u"background-color:#ffffff")
         
         self.botao_alterar_fonte_texto = QPushButton(self)
         self.botao_alterar_fonte_texto.setGeometry(55, 75, 35, 35)
+        self.botao_alterar_fonte_texto.clicked.connect(self.open_image)
+        self.botao_alterar_fonte_texto.setIcon(QIcon(os.path.join(caminho_pasta_imagens, '')))
         self.botao_alterar_fonte_texto.setStyleSheet(u"background-color:#ffffff")
         
         self.botao_alterar_cor_texto = QPushButton(self)
@@ -101,21 +106,21 @@ class Window(QMainWindow):
         
         self.botao_limpar = QPushButton(self)
         self.botao_limpar.setGeometry(10, 120, 35, 35)
-        self.botao_limpar.clicked.connect(self.clear)
+        self.botao_limpar.clicked.connect(self.limpar_tela)
         self.botao_limpar.setIcon(QIcon(os.path.join(caminho_pasta_imagens, 'limpar.png')))
         self.botao_limpar.setIconSize(QSize(30, 30))
         self.botao_limpar.setStyleSheet(u"background-color:#ffffff")
 
         self.botao_espessura = QPushButton(self)
         self.botao_espessura.setGeometry(10, 165, 35, 35)
-        self.botao_espessura.clicked.connect(self.show_brush_size_dialog)
+        self.botao_espessura.clicked.connect(self.mostrar_espessura_lapis_dialog)
         self.botao_espessura.setIcon(QIcon(os.path.join(caminho_pasta_imagens, 'espessura.png')))
         self.botao_espessura.setIconSize(QSize(30, 30))
         self.botao_espessura.setStyleSheet(u"background-color:#ffffff")
         
         self.botao_escolher_cor = QPushButton(self)
         self.botao_escolher_cor.setGeometry(10, 210, 35, 35)
-        self.botao_escolher_cor.clicked.connect(self.show_color_dialog)
+        self.botao_escolher_cor.clicked.connect(self.mostrar_cor_color_dialog)
         self.botao_escolher_cor.setIcon(QIcon(os.path.join(caminho_pasta_imagens, 'cor.png')))
         self.botao_escolher_cor.setIconSize(QSize(30, 30))
         self.botao_escolher_cor.setStyleSheet(u"background-color:#ffffff")
@@ -150,15 +155,15 @@ class Window(QMainWindow):
         main_menu = self.menuBar()
         file_menu = main_menu.addMenu("Arquivo")
 
-        acao_digitalizar = QAction("Print", self)
-        acao_digitalizar.setShortcut("Ctrl+P")
-        file_menu.addAction(acao_digitalizar)
-        acao_digitalizar.triggered.connect(self.digitalizar)
+        digitalizar_qaction = QAction("Print", self)
+        digitalizar_qaction.setShortcut("Ctrl+P")
+        file_menu.addAction(digitalizar_qaction)
+        digitalizar_qaction.triggered.connect(self.digitalizar)
 
-        clear_action = QAction("Limpar", self)
-        clear_action.setShortcut("Ctrl+C")
-        file_menu.addAction(clear_action)
-        clear_action.triggered.connect(self.clear)
+        limpar_tela_qaction = QAction("Limpar", self)
+        limpar_tela_qaction.setShortcut("Ctrl+C")
+        file_menu.addAction(limpar_tela_qaction)
+        limpar_tela_qaction.triggered.connect(self.limpar_tela)
 
         self.mouse_release_timer = QTimer(self)
         self.mouse_release_timer.setSingleShot(True)
@@ -190,18 +195,29 @@ class Window(QMainWindow):
         canvasPainter = QPainter(self)
         canvasPainter.drawImage(self.rect(), self.image, self.image.rect())
 
-    def save(self):
+    def salvar(self):
         filePath, _ = QFileDialog.getSaveFileName(self, "Save Image", "",
                           "PNG(*.png);;JPEG(*.jpg *.jpeg);;All Files(*.*) ")
  
         if filePath == "":
             return self.image.save(filePath)
            
-    def clear(self):
+    def limpar_tela(self):
         self.image.fill(Qt.white)
         self.update()
+        
+    def open_image(self):
+        options = QFileDialog.Options()
+        file_name, _ = QFileDialog.getOpenFileName(self, 'Abrir Imagem', '', 'Imagens (*.png *.jpg *.jpeg *.gif *.bmp);;Todos os Arquivos (*)', options=options)
+        if file_name:
+            pixmap = QPixmap(file_name)
+            if not pixmap.isNull():
+                # Defina a imagem selecionada como pixmap do QLabel
+                self.image_label.setPixmap(pixmap)
+                self.image_label.setScaledContents(True)
+                print(f'Imagem selecionada: {file_name}')
 
-    def show_color_dialog(self):
+    def mostrar_cor_color_dialog(self):
         color = QColorDialog.getColor(initial=self.brush_color)
         
         if color.isValid():
@@ -213,7 +229,7 @@ class Window(QMainWindow):
     def lapis(self):
         self.brush_color = QColor("#000000")
 
-    def show_brush_size_dialog(self):
+    def mostrar_espessura_lapis_dialog(self):
         brush_size_dialog = BrushThicknessDialog()
         result = brush_size_dialog.exec_()
 
@@ -239,27 +255,27 @@ class Window(QMainWindow):
         caminho_screenshot = os.path.join(caminho_pasta_imagens, 'screenshot.png')
         retornaClasse = RetornaClasse()
         letraDigitalizada = retornaClasse.prever_letra(caminho_screenshot)
-        self.atualizar_lista_append(letraDigitalizada)
+        self.append_lista_letras_digitalizadas(letraDigitalizada)
     
-    def atualizar_lista_append(self, letraDigitalizada):
-        self.minha_lista.append(letraDigitalizada)
+    def append_lista_letras_digitalizadas(self, letraDigitalizada):
+        self.lista_letras_digitalizadas.append(letraDigitalizada)
         self.atualizar_info_tela_digitalizada()
         
-    def atualizar_lista_pop(self):
+    def pop_lista_letras_digitalizadas(self):
         try:
-            self.minha_lista.pop()
+            self.lista_letras_digitalizadas.pop()
             self.atualizar_info_tela_digitalizada()
         except IndexError:
             print("A lista está vazia.")
         
     def atualizar_info_tela_digitalizada(self):
-        minha_lista_sem_colchetes = ''.join(str(valor) for valor in self.minha_lista if valor is not None and valor != 'e')
+        lista_letras_digitalizadas_sem_colchetes = ''.join(str(valor) for valor in self.lista_letras_digitalizadas if valor is not None and valor != 'e')
         self.tela_digitalizada.setHtml(
             u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
             "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
             "p, li { white-space: pre-wrap; }\n"
             "</style></head><body style=\" font-family:'SimSun'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-            f"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:65pt; font-family: Calibri\">{minha_lista_sem_colchetes}</span></p></body></html>")
+            f"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:64pt; font-family: Calibri\">{lista_letras_digitalizadas_sem_colchetes}</span></p></body></html>")
 
     def mostrar_letra_pontilhada_dialog(self, letter):
         letra_pontilhada_dialog = LetraPontilhadaDialog()
