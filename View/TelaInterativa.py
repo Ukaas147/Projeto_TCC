@@ -1,5 +1,5 @@
 import cv2, sys, os
-from PyQt5 import QtWidgets, QtGui
+from PyQt5 import QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -25,7 +25,6 @@ class Window(QMainWindow):
         self.image_label.setGeometry(463, 272, 349, 377)
         
 #CRIAÇÃO DA TELA
-
         self.margem_amarelo_esquerdo = QLabel(self)
         self.margem_amarelo_esquerdo.setObjectName(u"argem_amarelo_esquerdo")
         self.margem_amarelo_esquerdo.setGeometry(QRect(0, 0, 101, 660))
@@ -141,7 +140,7 @@ class Window(QMainWindow):
 
         self.botao_letra_pontilhada = QPushButton(self)
         self.botao_letra_pontilhada.setGeometry(10, 345, 35, 35)
-        self.botao_letra_pontilhada.clicked.connect(self.mostrar_letra_pontilhada_dialog)
+        self.botao_letra_pontilhada.clicked.connect(self.mostrar_letra_pontilhada)
         self.botao_letra_pontilhada.setIcon(QIcon(os.path.join(caminho_pasta_imagens, 'pontilhado.png')))
         self.botao_letra_pontilhada.setIconSize(QSize(30, 30))
         self.botao_letra_pontilhada.setStyleSheet(u"background-color:#ffffff")
@@ -236,6 +235,18 @@ class Window(QMainWindow):
         if result == QDialog.Accepted:
             self.brush_size = brush_size_dialog.get_selected_thickness()
 
+    def mostrar_letra_pontilhada_dialog(self, letter):
+        letra_pontilhada_dialog = LetraPontilhadaDialog()
+        result = letra_pontilhada_dialog.exec_()
+        image_path = f"letras/{letter}.png"
+        pixmap = QtGui.QPixmap(image_path)
+
+        if not pixmap.isNull():
+            self.tela_digitalizada.setPixmap(pixmap)
+            self.tela_digitalizada.setGeometry(69, 0, pixmap.width(), pixmap.height())
+            self.tela_digitalizada.setStyleSheet("background-color:#ffffff; border: 1px solid black")
+            self.show()
+
     def digitalizar(self):
         caminho_pasta_imagens = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'View', 'Imagens')
         caminho_screenshot = os.path.join(caminho_pasta_imagens, 'screenshot.png')
@@ -276,18 +287,6 @@ class Window(QMainWindow):
             "p, li { white-space: pre-wrap; }\n"
             "</style></head><body style=\" font-family:'SimSun'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
             f"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:64pt; font-family: Calibri\">{lista_letras_digitalizadas_sem_colchetes}</span></p></body></html>")
-
-    def mostrar_letra_pontilhada_dialog(self, letter):
-        letra_pontilhada_dialog = LetraPontilhadaDialog()
-        result = letra_pontilhada_dialog.exec_()
-        image_path = f"letras/{letter}.png"
-        pixmap = QtGui.QPixmap(image_path)
-
-        if not pixmap.isNull():
-            self.tela_digitalizada.setPixmap(pixmap)
-            self.tela_digitalizada.setGeometry(69, 0, pixmap.width(), pixmap.height())
-            self.tela_digitalizada.setStyleSheet("background-color:#ffffff; border: 1px solid black")
-            self.show()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

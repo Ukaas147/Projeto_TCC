@@ -1,10 +1,7 @@
-import cv2, sys, os
 from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
-from RedeNeural.RetornaClasse import RetornaClasse
-from brush_thickness_dialog import BrushThicknessDialog
 
 class LetraPontilhadaDialog(QtWidgets.QDialog):
     def __init__(self):
@@ -27,3 +24,12 @@ class LetraPontilhadaDialog(QtWidgets.QDialog):
                 row += 1
 
         self.setLayout(layout)
+        
+    def mostrar_letra_pontilhada(self, letter):
+        image_path = f"letras/{letter}.png"
+        pixmap = QtGui.QPixmap(image_path)
+
+        if not pixmap.isNull():
+            label = QtWidgets.QLabel(self)
+            label.setPixmap(pixmap)
+            label.show()
