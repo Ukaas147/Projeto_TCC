@@ -4,9 +4,64 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from RedeNeural.RetornaClasse import RetornaClasse
-from brush_thickness_dialog import BrushThicknessDialog
-from letra_pontilhada_dialog import LetraPontilhadaDialog
 
+class BrushThicknessDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("Escolher Espessura do Pincel")
+        self.setFixedSize(200, 150)
+
+        layout = QVBoxLayout()
+        self.brush_size = 2
+        options = ["Fina (10px)", "Média (20px)", "Grossa (30px)"]
+        self.radio_buttons = []
+
+        for option in options:
+            radio_button = QRadioButton(option, self)
+            layout.addWidget(radio_button)
+            self.radio_buttons.append(radio_button)
+
+        button = QPushButton("OK", self)
+        button.clicked.connect(self.accept)
+
+        layout.addWidget(button)
+        self.setLayout(layout)
+
+    def get_selected_thickness(self):
+        for index, radio_button in enumerate(self.radio_buttons):
+            if radio_button.isChecked():
+                return [10, 20, 30][index]
+            
+class LetraPontilhadaDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        
+        self.setWindowTitle("Selecione uma letra")
+        self.setFixedSize(300, 200)
+        self.letra_selecionada = None  # Variável para armazenar a letra selecionada
+
+        layout = QGridLayout()
+        row, col = 0, 0
+
+        for letra in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+            button = QPushButton(letra, self)
+            button.setMaximumWidth(30)
+            button.setMaximumHeight(30)
+            button.clicked.connect(lambda _, letra=letra: self.set_letra_selecionada(letra))
+            layout.addWidget(button, row, col)
+            col += 1
+
+            if col > 6:
+                col = 0
+                row += 1
+
+        self.setLayout(layout)
+
+    def set_letra_selecionada(self, letra):
+        self.letra_selecionada = letra
+        self.accept()
+    
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -19,11 +74,12 @@ class Window(QMainWindow):
         self.setFixedSize(1200, 660)
         self.setWindowIcon(QIcon(os.path.join(caminho_pasta_imagens, 'icone.png')))
         
-        self.image = QImage(self.size(), QImage.Format_RGB32)
+        self.image = QPixmap(self.size())
         self.image.fill(QColor("#ffffff"))
+        self.last_point = None
         
-        self.image_label = QLabel(self)
-        self.image_label.setGeometry(463, 272, 349, 377)
+        # self.image_label = QLabel(self)
+        # self.image_label.setGeometry(463, 272, 349, 377)
         
 #CRIAÇÃO DA TELA
         self.margem_amarelo_esquerdo = QLabel(self)
@@ -192,8 +248,8 @@ class Window(QMainWindow):
         self.digitalizar()
 
     def paintEvent(self, event):
-        canvasPainter = QPainter(self)
-        canvasPainter.drawImage(self.rect(), self.image, self.image.rect())
+        painter = QPainter(self)
+        painter.drawPixmap(0, 0, self.image)
 
     def salvar(self):
         filePath, _ = QFileDialog.getSaveFileName(self, "Save Image", "",
@@ -211,14 +267,13 @@ class Window(QMainWindow):
         file_name, _ = QFileDialog.getOpenFileName(self, 'Abrir Imagem', '', 'Imagens (*.png *.jpg *.jpeg *.gif *.bmp);;Todos os Arquivos (*)', options=options)
         if file_name:
             imagem_na_tela_label = QPixmap(file_name)
-            self.setar_imagem_label(imagem_na_tela_label)
-            
-                
-    def setar_imagem_label(self, imagem_na_tela_label):
+            self.setar_imagem(imagem_na_tela_label)
+                            
+    def setar_imagem(self, imagem_na_tela_label):
         if not imagem_na_tela_label.isNull():
-                # Defina a imagem selecionada como imagem_na_tela_label do QLabel
-                self.image_label.setPixmap(imagem_na_tela_label)
-                self.image_label.setScaledContents(True)
+                self.image = QPixmap(imagem_na_tela_label)
+                #self.image.setScaledContents(True)
+                self.update()
 
     def mostrar_cor_color_dialog(self):
         color = QColorDialog.getColor(initial=self.brush_color)
@@ -245,13 +300,14 @@ class Window(QMainWindow):
         result = letras_dialog.exec()
     
         if result == QDialog.Accepted:
+            
             letra_selecionada = letras_dialog.letra_selecionada
             imagem_path = os.path.join(caminho_pasta_imagens, f"{letra_selecionada}.png")
-            pixmap = QPixmap(imagem_path)
-            self.image_label.setPixmap(pixmap)
-            self.image_label.setScaledContents(True)
+            imagem_na_tela_label = QPixmap(imagem_path)
+
             print(f"Letra selecionada: {letra_selecionada}")
             print(f"Imagem selecionada: {imagem_path}")
+            self.setar_imagem(imagem_na_tela_label)
 
     def digitalizar(self):
         caminho_pasta_imagens = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'View', 'Imagens')
